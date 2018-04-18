@@ -30,8 +30,16 @@ void ACitySpawner::BeginPlay() {
 				FVector myLoc(x+this->GetActorLocation().X,y+this->GetActorLocation().Y,this->GetActorLocation().Z);
 				FRotator myRot(0,rand()%360,0);
 				FActorSpawnParameters SpawnInfo;
+
+				/*
+				bool bNoCollisionFail  = false;
+				SpawnInfo.SpawnCollisionHandlingOverride = bNoCollisionFail ?
+					ESpawnActorCollisionHandlingMethod::AlwaysSpawn : ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+				*/
+
 				AModularBuilding* NewBuilding = GetWorld()->SpawnActor<AModularBuilding>(AModularBuilding::StaticClass(), myLoc, myRot, SpawnInfo);
 				NewBuilding->SetActorRelativeScale3D(FVector(noise*3.3,noise*3.3,noise*3.3));
+				NewBuilding->SetActorEnableCollision(true);
 				NewBuilding->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 			}
 		}

@@ -8,9 +8,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/StaticMeshComponent.h"
-#include <vector>
+#include "GameFramework/Actor.h"
 #include "GrammarShape.generated.h"
-
 
 UCLASS()
 class MODULARTOWN_API UGrammarShape : public UStaticMeshComponent {
@@ -29,4 +28,6 @@ private:
 	void rule_walls();
 	void rule_roof();
 	void construct_wall(int dir);
+
+	TSubclassOf<class AActor> LightBlueprint;
 };

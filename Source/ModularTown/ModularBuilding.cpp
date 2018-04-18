@@ -2,7 +2,6 @@
 
 #include "ModularBuilding.h"
 
-
 // Sets default values
 AModularBuilding::AModularBuilding() {
  	// Set this actor to never call Tick()
@@ -13,6 +12,7 @@ AModularBuilding::AModularBuilding() {
 
 	Base = CreateDefaultSubobject<UGrammarShape>(TEXT("Base"));
 	Base->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	Base->SetRelativeLocation(FVector(0, 0, 40));
 	Base->expand();
 }
 
@@ -20,9 +20,3 @@ AModularBuilding::AModularBuilding() {
 void AModularBuilding::BeginPlay() {
 	Super::BeginPlay();
 }
-
-// Called every frame
-void AModularBuilding::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
-}
-

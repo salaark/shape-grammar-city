@@ -13,6 +13,11 @@ UGrammarShape::UGrammarShape() {
  	rule = 0;
  	spaces = 1;
  	space_dir = 0;
+
+ 	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/MPMeleeCombat/Blueprints/BP_InteractiveTorch.BP_InteractiveTorch'"));
+    if (ItemBlueprint.Object){
+        LightBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+    }
 }
 
 void UGrammarShape::expand() {
@@ -31,9 +36,10 @@ void UGrammarShape::expand() {
 
 void UGrammarShape::rule_rooms(int count) {
 	for(int i = 0; i <= count; i++) {
-		UGrammarShape* shape = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass()); //*FString("Room" + FString::FromInt(i))
+		UGrammarShape* shape = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass(), *(FString::Printf(TEXT("Room_%i"), i)));
 		static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshObj(TEXT("/Game/EternalTemple/Environment/Bases/Thin/Base_Floor_01"));
  		shape->SetStaticMesh(MeshObj.Object);
+ 		shape->SetCollisionObjectType(ECC_WorldStatic);
  		shape->rule = 1;
 
  		switch(i) {
@@ -59,6 +65,19 @@ void UGrammarShape::rule_rooms(int count) {
 				break;
  		}
  		shape->SetupAttachment(this);
+
+ 		/*UChildActorComponent* child = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Torch_%i"), i)));
+		child->SetChildActorClass(LightBlueprint);
+		child->SetupAttachment(this);*/
+
+ 		/*UWorld* const World = GetWorld();
+		if (World) {
+		    FActorSpawnParameters SpawnParams;
+		    FTransform Transform = shape->GetRelativeTransform();
+		    AActor* MyLight = World->SpawnActor<AActor>(LightBlueprint, Transform.GetLocation(), FRotator(Transform.GetRotation()), SpawnParams);
+		    MyLight->AttachToActor(GetOwner(), FAttachmentTransformRules::KeepRelativeTransform);
+		}*/
+
 		shape->expand();
 	}
 }
@@ -88,7 +107,7 @@ void UGrammarShape::rule_walls() {
 }
 
 void UGrammarShape::rule_roof() {
-	UGrammarShape* roof = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass());
+	UGrammarShape* roof = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass(), *(FString(TEXT("Roof"))));
 	if(spaces != 1) {
 		static ConstructorHelpers::FObjectFinder<UStaticMesh> RoofObj(TEXT("/Game/EternalTemple/MeshParts/SM_Roof_3lvl_01.SM_Roof_3lvl_01"));
 		roof->SetStaticMesh(RoofObj.Object);
@@ -96,6 +115,7 @@ void UGrammarShape::rule_roof() {
 		if(spaces == 0) roof->SetRelativeLocation(FVector(grid_size/-12,0,grid_size/2));
 		else roof->SetRelativeScale3D(FVector(1.25,1.25,1.25));
 		roof->SetupAttachment(this);
+		roof->SetCollisionObjectType(ECC_WorldStatic);
 		return;
 	}
 
@@ -103,6 +123,7 @@ void UGrammarShape::rule_roof() {
  	roof->SetStaticMesh(RoofObj.Object);
 
  	roof->SetRelativeScale3D(FVector(0.9,0.9,0.9));
+ 	roof->SetCollisionObjectType(ECC_WorldStatic);
 	switch(space_dir) {
 		case 0:
 			roof->SetRelativeLocation(FVector(grid_size/-2-grid_size/12,0,grid_size/-6));
@@ -124,8 +145,14 @@ void UGrammarShape::rule_roof() {
 }
 
 void UGrammarShape::construct_wall(int dir) {
-	UGrammarShape* wall = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass());
-	if(rand()%4 == 0) {
+	UGrammarShape* wall = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass(), *(FString::Printf(TEXT("Wall_%i"), dir)));
+	wall->SetCollisionObjectType(ECC_WorldStatic);
+	//Door always spawns facing city center, random other doors always face away from center of building
+	bool door = (spaces == 1) && ((space_dir == 0 && dir == 3) || (space_dir == 1 && dir == 2 && rand()%2 == 0) ||
+		(space_dir == 2 && dir == 1 && rand()%2 == 0) || (space_dir == 3 && dir == 0 && rand()%2 == 0));
+	door = door || (spaces == 0 && dir == 3);
+	if(door) {
+		//Spawn doorway instead of wall
 		static ConstructorHelpers::FObjectFinder<UStaticMesh> WallObj(TEXT("/Game/EternalTemple/MeshParts/SM_Building_Entrance_02"));
 	 	wall->SetStaticMesh(WallObj.Object);
 	 } else {
@@ -133,9 +160,10 @@ void UGrammarShape::construct_wall(int dir) {
 	 	wall->SetStaticMesh(WallObj.Object);
 	 }
 
- 	UGrammarShape* column = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass());
+ 	UGrammarShape* column = NewObject<UGrammarShape>(this, UGrammarShape::StaticClass(), *(FString::Printf(TEXT("Column_%i"), dir)));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColObj(TEXT("/Game/EternalTemple/MeshParts/SM_Building_Column_01"));
  	column->SetStaticMesh(ColObj.Object);
+ 	column->SetCollisionObjectType(ECC_WorldStatic);
 
 	switch(dir) {
 		case 0:
@@ -159,4 +187,17 @@ void UGrammarShape::construct_wall(int dir) {
 	}
 	wall->SetupAttachment(this);
 	column->SetupAttachment(this);
+
+	//Spawn torches on walls near main door and with random chance
+	if(!door && (space_dir == 0 || spaces == 0 || rand()%3 != 0)) {
+		UChildActorComponent* child = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Torch_%i"), dir)));
+		child->SetChildActorClass(LightBlueprint);
+		switch(dir) {
+			case 0:
+			case 1: child->SetRelativeLocation(FVector(50, 0, grid_size/3)); break;
+			case 2:
+			case 3: child->SetRelativeLocation(FVector(-50, 0, grid_size/3)); break;
+		}
+		child->SetupAttachment(wall);
+	}
 }
