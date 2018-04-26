@@ -1,21 +1,16 @@
+# Procedural City and Bridges
+Generates procedural cities and bridges for the game [Sail and Sacrifice](http://store.steampowered.com/app/792940/Sail_And_Sacrifice) using [Eternal Temple](https://www.unrealengine.com/marketplace/eternal-temple) assets. Made using Unreal Engine’s C++ API.  
 
-# Procedural City Spawner
-
-Generates a city using [Eternal Temple](https://www.unrealengine.com/marketplace/eternal-temple) assets. Made entirely using Unreal Engine’s C++ API.  
-
-For source files, see Source/ModularTown/ModularBuilding, GrammarShape, CitySpawner, and SimplexNoise.  
-
-## Grammar Design
-Starts off by creating a foundation for the building. Can either be a standalone room, or divide into a central room with 1-4 adjacent rooms. Rooms keep track of where the adjacent room is or how many adjacent rooms there are if it is the central room.  
-
-Each room then generates a wall and a column at the right edge of the wall for continuity. The transform is generated for each wall where there is no adjacent room. There is a random 1/4 chance that the wall is an entrance.  
-
-Finally, the room generates a roof with the transform adjusted based on adjacent rooms. The central room has a special type of roof unless there is only one adjacent room.  
+For source files, see Source/ModularTown/ModularBuilding, ModularBridge, GrammarShape, CitySpawner, and SimplexNoise.  
 
 ## City Generation
-The city uses a 2D Simplex noise function to represent common areas where people walk around. With that knowledge, buildings are placed in high, but not too high density areas (where people walk around but not in the middle of where everybody is walking around). The noise function is sampled at uniform points on a grid, where it is then checked to see if it lies in the threshold. If so, a building is spawned with its scale proportional to the value of the noise function and a random up-axis rotation applied.  
+As shown in the video, the city generation queries the landscape with a designer-specified range and cell size, placing buildings where the landscape allows. The buildings are oriented toward the center of the city and scaled according to height (smaller when higher up). All transformations are set relative to a grid size (600 for this pack). The meshes can easily be replaced with any modular mesh components for walls, entrances, etc to create a variety of styles. Integrating the city generation with my existing game project automatically adds height variation, dynamic terrain textures, and procedural foliage. 
 
-In the future, I may add paths using the same noise function to mark where the player and AI should move. Buildings could also be more complex with additional grammar rules such as bridges between buildings or large temples with multiple interior floors. I made sure to program all transformations relative to a grid size (600 for this pack). The meshes can easily be replaced with any modular mesh components for walls, entrances, etc to create a variety of styles. Lastly, I plan to integrate the city generation with my existing game project, which would add height variation, dynamic terrain textures, and procedural foliage.  
+## Building Grammar
+The building grammar involves the placement of different types of floors, walls, roofs, and columns. Buildings also include procedurally placed torches to light up the interiors as well as beds and chairs that NPCs can sit and sleep in depending on the time of day during gameplay. Each building has randomly placed entrances with one guaranteed entrance in the front of the building. There are five possible types of buildings with 1-5 rooms.   
+
+## Bridge Generation
+Generates a multi-level bridge from a given start position to a given target position (including desired height). The bridge tries to have a reasonable number of turns and staircases while reaching the target position. The geometry placed includes different types of base blocks, railings, balconies, staircases, columns, and arches. Having a start and end location allows for designer freedom in placement of bridges that conform to gameplay needs.  
 
 ![buildings1](Images/buildings1.png)
 ![buildings2](Images/buildings2.png)
