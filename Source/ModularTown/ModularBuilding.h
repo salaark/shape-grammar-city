@@ -11,7 +11,7 @@
 #include "ModularBuilding.generated.h"
 
 UCLASS()
-class MODULARTOWN_API AModularBuilding : public AActor {
+class ARCHIPLEAGOALPHA_API AModularBuilding : public AActor {
 	GENERATED_BODY()
 	
 public:	
@@ -26,6 +26,5 @@ public:
 	// Root component is punlic
 	UPROPERTY(EditAnywhere)
 	USceneComponent* SceneComponent;
-
 	UGrammarShape* Base;
 };

@@ -14,9 +14,17 @@ UGrammarShape::UGrammarShape() {
  	spaces = 1;
  	space_dir = 0;
 
- 	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/MPMeleeCombat/Blueprints/BP_InteractiveTorch.BP_InteractiveTorch'"));
-    if (ItemBlueprint.Object){
-        LightBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+ 	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint1(TEXT("Blueprint'/Game/MPMeleeCombat/Blueprints/BP_InteractiveTorch.BP_InteractiveTorch'"));
+    if (ItemBlueprint1.Object){
+        LightBlueprint = (UClass*)ItemBlueprint1.Object->GeneratedClass;
+    }
+    static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint2(TEXT("/Game/AIBehaviorToolkit/Blueprints/BP_WorkSit"));
+    if (ItemBlueprint2.Object){
+        ChairBlueprint = (UClass*)ItemBlueprint2.Object->GeneratedClass;
+    }
+    static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint3(TEXT("/Game/AIBehaviorToolkit/Blueprints/BP_WorkSleep"));
+    if (ItemBlueprint3.Object){
+        BedBlueprint = (UClass*)ItemBlueprint3.Object->GeneratedClass;
     }
 }
 
@@ -65,18 +73,31 @@ void UGrammarShape::rule_rooms(int count) {
 				break;
  		}
  		shape->SetupAttachment(this);
+ 		/*
+ 		int interior = rand() % 5;
+ 		switch(interior) {
+ 			case 0: {
+ 				UChildActorComponent* bed = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Bed_%i"), space_dir)));
+				bed->SetChildActorClass(BedBlueprint);
+				bed->SetRelativeLocation(FVector(grid_size/-4, 0, 50));
+				bed->SetRelativeRotation(FRotator(0,rand()%30-15,0));
+				bed->SetupAttachment(shape);
+ 				} break;
+ 			case 1: {
+ 				int chair_rot = rand()%30-15;
+ 				UChildActorComponent* chair1 = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Chair1_%i"), space_dir)));
+				chair1->SetChildActorClass(ChairBlueprint);
+				chair1->SetRelativeLocation(FVector(grid_size/-4, grid_size/6, 0));
+				chair1->SetRelativeRotation(FRotator(0,chair_rot,0));
+				chair1->SetupAttachment(shape);
 
- 		/*UChildActorComponent* child = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Torch_%i"), i)));
-		child->SetChildActorClass(LightBlueprint);
-		child->SetupAttachment(this);*/
-
- 		/*UWorld* const World = GetWorld();
-		if (World) {
-		    FActorSpawnParameters SpawnParams;
-		    FTransform Transform = shape->GetRelativeTransform();
-		    AActor* MyLight = World->SpawnActor<AActor>(LightBlueprint, Transform.GetLocation(), FRotator(Transform.GetRotation()), SpawnParams);
-		    MyLight->AttachToActor(GetOwner(), FAttachmentTransformRules::KeepRelativeTransform);
-		}*/
+				UChildActorComponent* chair2 = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Chair2_%i"), space_dir)));
+				chair2->SetChildActorClass(ChairBlueprint);
+				chair2->SetRelativeLocation(FVector(grid_size/-4, grid_size/-6, 0));
+				chair2->SetRelativeRotation(FRotator(0,-chair_rot,0));
+				chair2->SetupAttachment(shape);
+ 				} break;
+ 		}*/
 
 		shape->expand();
 	}
@@ -189,8 +210,9 @@ void UGrammarShape::construct_wall(int dir) {
 	column->SetupAttachment(this);
 
 	//Spawn torches on walls near main door and with random chance
+	
 	if(!door && (space_dir == 0 || spaces == 0 || rand()%3 != 0)) {
-		UChildActorComponent* child = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Torch_%i"), dir)));
+		UChildActorComponent* child = NewObject<UChildActorComponent>(GetOwner(), UChildActorComponent::StaticClass(), *(FString::Printf(TEXT("Torch_%i"), dir)));
 		child->SetChildActorClass(LightBlueprint);
 		switch(dir) {
 			case 0:

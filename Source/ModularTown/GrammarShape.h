@@ -12,7 +12,7 @@
 #include "GrammarShape.generated.h"
 
 UCLASS()
-class MODULARTOWN_API UGrammarShape : public UStaticMeshComponent {
+class ARCHIPLEAGOALPHA_API UGrammarShape : public UStaticMeshComponent {
 	GENERATED_BODY()
 
 public:
@@ -23,11 +23,13 @@ public:
 	int space_dir;
 	int rule;
 
+	TSubclassOf<class AActor> LightBlueprint;
+	TSubclassOf<class AActor> ChairBlueprint;
+	TSubclassOf<class AActor> BedBlueprint;
+
 private:
 	void rule_rooms(int count);
 	void rule_walls();
 	void rule_roof();
 	void construct_wall(int dir);
-
-	TSubclassOf<class AActor> LightBlueprint;
 };

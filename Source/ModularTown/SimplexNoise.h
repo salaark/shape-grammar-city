@@ -19,7 +19,7 @@ Modified and simplified by Salaar Kohari
 
 
 UCLASS()
-class MODULARTOWN_API USimplexNoise : public UObject
+class ARCHIPLEAGOALPHA_API USimplexNoise : public UObject
 {
 	GENERATED_UCLASS_BODY()
 private:

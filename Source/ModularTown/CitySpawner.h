@@ -10,7 +10,7 @@
 #include "CitySpawner.generated.h"
 
 UCLASS()
-class MODULARTOWN_API ACitySpawner : public AActor
+class ARCHIPLEAGOALPHA_API ACitySpawner : public AActor
 {
 	GENERATED_BODY()
 	

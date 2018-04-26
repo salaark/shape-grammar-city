@@ -12,7 +12,7 @@ AModularBuilding::AModularBuilding() {
 
 	Base = CreateDefaultSubobject<UGrammarShape>(TEXT("Base"));
 	Base->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	Base->SetRelativeLocation(FVector(0, 0, 40));
+	Base->SetRelativeLocation(FVector(0, 0, 30));
 	Base->expand();
 }
 
